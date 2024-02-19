@@ -6,9 +6,9 @@ namespace MartinGeorgiev\Doctrine\ORM\Query\AST\Functions;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\AST\Node;
-use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 
 /**
  * @since 0.1
@@ -45,10 +45,10 @@ abstract class BaseFunction extends FunctionNode
     {
         $this->customiseFunction();
 
-        $parser->match(Lexer::T_IDENTIFIER);
-        $parser->match(Lexer::T_OPEN_PARENTHESIS);
+        $parser->match(TokenType::T_IDENTIFIER);
+        $parser->match(TokenType::T_OPEN_PARENTHESIS);
         $this->feedParserWithNodes($parser);
-        $parser->match(Lexer::T_CLOSE_PARENTHESIS);
+        $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class BaseFunction extends FunctionNode
             $parserMethod = $this->nodesMapping[$i];
             $this->nodes[$i] = $parser->{$parserMethod}();
             if ($i < $lastNode) {
-                $parser->match(Lexer::T_COMMA);
+                $parser->match(TokenType::T_COMMA);
             }
         }
     }

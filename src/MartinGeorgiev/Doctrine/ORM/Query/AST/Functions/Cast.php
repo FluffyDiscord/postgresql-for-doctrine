@@ -10,6 +10,7 @@ use Doctrine\ORM\Query\AST\Node;
 use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 
 /**
  * Implementation of PostgreSql CAST().
@@ -28,11 +29,11 @@ class Cast extends FunctionNode
 
     public function parse(Parser $parser): void
     {
-        $parser->match(Lexer::T_IDENTIFIER);
-        $parser->match(Lexer::T_OPEN_PARENTHESIS);
+        $parser->match(TokenType::T_IDENTIFIER);
+        $parser->match(TokenType::T_OPEN_PARENTHESIS);
         $this->sourceType = $parser->SimpleArithmeticExpression();
-        $parser->match(Lexer::T_AS);
-        $parser->match(Lexer::T_IDENTIFIER);
+        $parser->match(TokenType::T_AS);
+        $parser->match(TokenType::T_IDENTIFIER);
 
         $lexer = $parser->getLexer();
         $token = $lexer->token;
@@ -44,24 +45,24 @@ class Cast extends FunctionNode
         }
 
         $type = $token->value;
-        if ($lexer->isNextToken(Lexer::T_OPEN_PARENTHESIS)) {
-            $parser->match(Lexer::T_OPEN_PARENTHESIS);
+        if ($lexer->isNextToken(TokenType::T_OPEN_PARENTHESIS)) {
+            $parser->match(TokenType::T_OPEN_PARENTHESIS);
             $parameter = $parser->Literal();
             $parameters = [$parameter->value];
-            if ($lexer->isNextToken(Lexer::T_COMMA)) {
-                while ($lexer->isNextToken(Lexer::T_COMMA)) {
-                    $parser->match(Lexer::T_COMMA);
+            if ($lexer->isNextToken(TokenType::T_COMMA)) {
+                while ($lexer->isNextToken(TokenType::T_COMMA)) {
+                    $parser->match(TokenType::T_COMMA);
                     $parameter = $parser->Literal();
                     $parameters[] = $parameter->value;
                 }
             }
-            $parser->match(Lexer::T_CLOSE_PARENTHESIS);
+            $parser->match(TokenType::T_CLOSE_PARENTHESIS);
             $type .= '('.\implode(', ', $parameters).')';
         }
 
         $this->targetType = $type;
 
-        $parser->match(Lexer::T_CLOSE_PARENTHESIS);
+        $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 
     public function getSql(SqlWalker $sqlWalker): string
